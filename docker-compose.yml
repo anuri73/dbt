@@ -1,0 +1,90 @@
+version: '2.1'
+
+services:
+
+  flyway:
+    image: flyway/flyway:6.3.1
+    command: -configFiles=/flyway/conf/flyway.config -locations=filesystem:/flyway/sql -connectRetries=60 migrate
+    volumes:
+      - ${PWD}/migrations:/flyway/sql
+      - ${PWD}/docker-flyway.config:/flyway/conf/flyway.config
+    depends_on:
+      - postgres1
+    networks:
+      - postgres
+
+  postgres1:
+    container_name: postgres1
+    image: postgres:12.2-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-12345678}
+      PGDATA: /data/postgres
+    volumes:
+      - postgres1:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+
+#  postgres2:
+#    container_name: postgres2
+#    build:
+#      context: .
+#      dockerfile: ./Dockerfile
+#    environment:
+#      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-12345678}
+#      PGDATA: /data/postgres
+#    volumes:
+#      - postgres2:/data/postgres
+#    ports:
+#      - "5433:5432"
+#    networks:
+#      - postgres
+#    restart: unless-stopped
+#
+#  postgres3:
+#    container_name: postgres3
+#    build:
+#      context: .
+#      dockerfile: ./Dockerfile
+#    environment:
+#      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-12345678}
+#      PGDATA: /data/postgres
+#    volumes:
+#      - postgres3:/data/postgres
+#    ports:
+#      - "5434:5432"
+#    networks:
+#      - postgres
+#    restart: unless-stopped
+#
+#  postgres4:
+#    container_name: postgres4
+#    build:
+#      context: .
+#      dockerfile: ./Dockerfile
+#    environment:
+#      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-12345678}
+#      PGDATA: /data/postgres
+#    volumes:
+#      - postgres4:/data/postgres
+#    ports:
+#      - "5435:5432"
+#    networks:
+#      - postgres
+#    restart: unless-stopped
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+  postgres1:
+  postgres2:
+  postgres3:
+  postgres4:
