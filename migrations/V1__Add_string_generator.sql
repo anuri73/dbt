@@ -18,4 +18,4 @@ begin
         end loop;
     return result;
 end;
-$$
+$$ language plpgsql;
