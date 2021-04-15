@@ -1,86 +1,100 @@
-version: '2.1'
+version: '3'
+
+x-postgres:
+  &postgres-common
+  image: postgres:12.2-alpine
+  networks:
+    - dbt
+  environment:
+    &postgres-common-env
+    POSTGRES_DB: ${POSTGRES_DB:-postgres}
+    POSTGRES_USER: ${POSTGRES_USER:-postgres}
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-12345678}
+    PGDATA: /data/postgres
+
+x-flyway:
+  &flyway-common
+  image: flyway/flyway:6.3.1
+  command: -locations=filesystem:/flyway/sql -connectRetries=60 migrate
+  networks:
+    - dbt
+  volumes:
+    - ./flyway/migrations:/flyway/sql
+  environment:
+    &flyway-common-env
+    FLYWAY_URL: ${POSTGRES1_CONNECTION_URL}
+    FLYWAY_USER: ${POSTGRES_USER:-postgres}
+    FLYWAY_PASSWORD: ${POSTGRES_PASSWORD:-12345678}
+    FLYWAY_BASELINE_ON_MIGRATE: ${BASELINE_ON_MIGRATE:-true}
 
 services:
 
-  flyway:
-    image: flyway/flyway:6.3.1
-    command: -configFiles=/flyway/conf/flyway.config -locations=filesystem:/flyway/sql -connectRetries=60 migrate
-    volumes:
-      - ./migrations:/flyway/sql
-      - ./docker-flyway.config:/flyway/conf/flyway.config
-    depends_on:
-      - postgres1
-    networks:
-      - postgres
-
   postgres1:
+    <<: *postgres-common
     container_name: postgres1
-    image: postgres:12.2-alpine
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-postgres}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-12345678}
-      PGDATA: /data/postgres
     volumes:
       - postgres1:/data/postgres
     ports:
       - "5432:5432"
-    networks:
-      - postgres
 
-#  postgres2:
-#    container_name: postgres2
-#    build:
-#      context: .
-#      dockerfile: ./Dockerfile
-#    environment:
-#      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-12345678}
-#      PGDATA: /data/postgres
-#    volumes:
-#      - postgres2:/data/postgres
-#    ports:
-#      - "5433:5432"
-#    networks:
-#      - postgres
-#    restart: unless-stopped
-#
-#  postgres3:
-#    container_name: postgres3
-#    build:
-#      context: .
-#      dockerfile: ./Dockerfile
-#    environment:
-#      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-12345678}
-#      PGDATA: /data/postgres
-#    volumes:
-#      - postgres3:/data/postgres
-#    ports:
-#      - "5434:5432"
-#    networks:
-#      - postgres
-#    restart: unless-stopped
-#
-#  postgres4:
-#    container_name: postgres4
-#    build:
-#      context: .
-#      dockerfile: ./Dockerfile
-#    environment:
-#      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-12345678}
-#      PGDATA: /data/postgres
-#    volumes:
-#      - postgres4:/data/postgres
-#    ports:
-#      - "5435:5432"
-#    networks:
-#      - postgres
-#    restart: unless-stopped
+  flyway1:
+    <<: *flyway-common
+    environment:
+      <<: *flyway-common-env
+      FLYWAY_URL: ${POSTGRES1_CONNECTION_URL}
+    depends_on:
+      - postgres1
+
+  postgres2:
+    <<: *postgres-common
+    container_name: postgres2
+    volumes:
+      - postgres2:/data/postgres
+    ports:
+      - "5433:5432"
+
+  flyway2:
+    <<: *flyway-common
+    environment:
+      <<: *flyway-common-env
+      FLYWAY_URL: ${POSTGRES2_CONNECTION_URL}
+    depends_on:
+      - postgres2
+
+  postgres3:
+    <<: *postgres-common
+    container_name: postgres3
+    volumes:
+      - postgres3:/data/postgres
+    ports:
+      - "5434:5432"
+
+  flyway3:
+    <<: *flyway-common
+    environment:
+      <<: *flyway-common-env
+      FLYWAY_URL: ${POSTGRES3_CONNECTION_URL}
+    depends_on:
+      - postgres3
+
+  postgres4:
+    <<: *postgres-common
+    container_name: postgres4
+    volumes:
+      - postgres4:/data/postgres
+    ports:
+      - "5435:5432"
+
+  flyway4:
+    <<: *flyway-common
+    environment:
+      <<: *flyway-common-env
+      FLYWAY_URL: ${POSTGRES4_CONNECTION_URL}
+    depends_on:
+      - postgres4
 
 networks:
-  postgres:
+  dbt:
     driver: bridge
 
 volumes:

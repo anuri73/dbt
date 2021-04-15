@@ -10,6 +10,10 @@ up:
 	$(DOCKER_COMPOSE) up --remove-orphans -d --build
 .PHONY: up
 
+ps:
+	$(DOCKER_COMPOSE) ps
+.PHONY: ps
+
 recreate:
 	$(DOCKER_COMPOSE) up -d --force-recreate $(CONTAINER)
 .PHONY: recreate
