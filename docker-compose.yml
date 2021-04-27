@@ -93,6 +93,14 @@ services:
     depends_on:
       - postgres4
 
+  warehouse:
+    <<: *postgres-common
+    container_name: warehouse
+    volumes:
+      - warehouse:/data/postgres
+    ports:
+      - "5436:5432"
+
 networks:
   dbt:
     driver: bridge
@@ -102,3 +110,4 @@ volumes:
   postgres2:
   postgres3:
   postgres4:
+  warehouse:

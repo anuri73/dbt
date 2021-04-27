@@ -6,8 +6,12 @@ DOCKER         ?= docker
 all: up
 .PHONY: all
 
-up:
+install:
 	$(DOCKER_COMPOSE) up --remove-orphans -d --build
+.PHONY: install
+
+up:
+	$(DOCKER_COMPOSE) up -d
 .PHONY: up
 
 ps:
@@ -27,13 +31,5 @@ stop:
 .PHONY: stop
 
 down:
-	$(DOCKER_COMPOSE) down --remove-orphans
-	make db-clean
+	$(DOCKER_COMPOSE) down -v --remove-orphans
 .PHONY: down
-
-db-clean:
-	$(DOCKER) volume rm -f dbt_postgres1
-	$(DOCKER) volume rm -f dbt_postgres2
-	$(DOCKER) volume rm -f dbt_postgres3
-	$(DOCKER) volume rm -f dbt_postgres4
-.PHONY: db-clean
