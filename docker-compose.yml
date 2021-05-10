@@ -7,9 +7,6 @@ x-postgres:
     - dbt
   environment:
     &postgres-common-env
-    POSTGRES_DB: ${POSTGRES_DB:-postgres}
-    POSTGRES_USER: ${POSTGRES_USER:-postgres}
-    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-12345678}
     PGDATA: /data/postgres
 
 x-flyway:
@@ -29,85 +26,140 @@ x-flyway:
 
 services:
 
-  postgres1:
+  tap_postgres1:
     <<: *postgres-common
-    container_name: postgres1
+    container_name: tap_postgres1
     volumes:
-      - postgres1:/data/postgres
+      - tap_postgres1:/data/postgres
+    environment:
+      <<: *postgres-common-env
+      POSTGRES_DB: ${TAP_POSTGRES1_DB:-postgres}
+      POSTGRES_USER: ${TAP_POSTGRES1_USER:-postgres}
+      POSTGRES_PASSWORD: ${TAP_POSTGRES1_PASSWORD:-12345678}
     ports:
-      - "5432:5432"
+      - "${TAP_POSTGRES1_PORT_ON_HOST}:${TAP_POSTGRES1_PORT:-5432}"
 
-  flyway1:
+  tap_postgres1_flyway1:
     <<: *flyway-common
     environment:
       <<: *flyway-common-env
-      FLYWAY_URL: ${POSTGRES1_CONNECTION_URL}
+      FLYWAY_URL: ${TAP_POSTGRES1_CONNECTION_URL}
     depends_on:
-      - postgres1
+      - tap_postgres1
 
-  postgres2:
+  tap_postgre2:
     <<: *postgres-common
-    container_name: postgres2
+    container_name: tap_postgres2
     volumes:
-      - postgres2:/data/postgres
+      - tap_postgres2:/data/postgres
+    environment:
+      <<: *postgres-common-env
+      POSTGRES_DB: ${TAP_POSTGRES2_DB:-postgres}
+      POSTGRES_USER: ${TAP_POSTGRES2_USER:-postgres}
+      POSTGRES_PASSWORD: ${TAP_POSTGRES2_PASSWORD:-12345678}
     ports:
-      - "5433:5432"
+      - "${TAP_POSTGRES2_PORT_ON_HOST}:${TAP_POSTGRES2_PORT:-5432}"
 
-  flyway2:
+  tap_postgres2_flyway2:
     <<: *flyway-common
     environment:
       <<: *flyway-common-env
-      FLYWAY_URL: ${POSTGRES2_CONNECTION_URL}
+      FLYWAY_URL: ${TAP_POSTGRES2_CONNECTION_URL}
     depends_on:
-      - postgres2
+      - tap_postgres2
 
-  postgres3:
+  tap_postgres3:
     <<: *postgres-common
-    container_name: postgres3
+    container_name: tap_postgres3
     volumes:
-      - postgres3:/data/postgres
+      - tap_postgres3:/data/postgres
+    environment:
+      <<: *postgres-common-env
+      POSTGRES_DB: ${TAP_POSTGRES3_DB:-postgres}
+      POSTGRES_USER: ${TAP_POSTGRES3_USER:-postgres}
+      POSTGRES_PASSWORD: ${TAP_POSTGRES3_PASSWORD:-12345678}
     ports:
-      - "5434:5432"
+      - "${TAP_POSTGRES3_PORT_ON_HOST}:${TAP_POSTGRES3_PORT:-5432}"
 
-  flyway3:
+  tap_postgres3_flyway3:
     <<: *flyway-common
     environment:
       <<: *flyway-common-env
-      FLYWAY_URL: ${POSTGRES3_CONNECTION_URL}
+      FLYWAY_URL: ${TAP_POSTGRES3_CONNECTION_URL}
     depends_on:
-      - postgres3
+      - tap_postgres3
 
-  postgres4:
+  tap_postgres4:
     <<: *postgres-common
-    container_name: postgres4
+    container_name: tap_postgres4
     volumes:
-      - postgres4:/data/postgres
+      - tap_postgres4:/data/postgres
+    environment:
+      <<: *postgres-common-env
+      POSTGRES_DB: ${TAP_POSTGRES4_DB:-postgres}
+      POSTGRES_USER: ${TAP_POSTGRES4_USER:-postgres}
+      POSTGRES_PASSWORD: ${TAP_POSTGRES4_PASSWORD:-12345678}
     ports:
-      - "5435:5432"
+      - "${TAP_POSTGRES4_PORT_ON_HOST}:${TAP_POSTGRES4_PORT:-5432}"
 
-  flyway4:
+  tap_postgres4_flyway4:
     <<: *flyway-common
     environment:
       <<: *flyway-common-env
-      FLYWAY_URL: ${POSTGRES4_CONNECTION_URL}
+      FLYWAY_URL: ${TAP_POSTGRES4_CONNECTION_URL}
     depends_on:
-      - postgres4
+      - tap_postgres4
 
-  warehouse:
+  target_postgres_warehouse:
     <<: *postgres-common
-    container_name: warehouse
+    container_name: target_postgres_warehouse
     volumes:
-      - warehouse:/data/postgres
+      - target_postgres_warehouse:/data/postgres
+    environment:
+      <<: *postgres-common-env
+      POSTGRES_DB: ${TARGET_POSTGRES_DB:-postgres}
+      POSTGRES_USER: ${TARGET_POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${TARGET_POSTGRES_PASSWORD:-12345678}
     ports:
-      - "5436:5432"
+      - "${TARGET_POSTGRES_PORT_ON_HOST}:${TARGET_POSTGRES_PORT:-5432}"
+
+  pipelinewise:
+    build:
+      context: pipelinewise
+      dockerfile: Dockerfile
+    container_name: pipelinewise
+    env_file:
+      - .env
+    environment:
+      PIPELINEWISE_HOME: ${PIPELINEWISE_HOME}
+      PIPELINEWISE_SRC: ${PIPELINEWISE_SRC}
+
+    volumes:
+      # mount pipelinewise source
+      - ./pipelinewise/src:/opt/pipelinewise/src
+      # mount pipelinewise dev
+      - ./pipelinewise/dev:/opt/pipelinewise/dev
+      # mount pipelinewise pipe configuration directory to host for ease of troubleshooting
+      - ./pipelinewise/.pipelinewise:/root/.pipelinewise
+      # don't create container specific .virtualenvs files on host
+      - /opt/pipelinewise/dev/.virtualenvs/
+
+    depends_on:
+      - tap_postgres1
+      - tap_postgres2
+      - tap_postgres3
+      - tap_postgres4
+      - target_postgres_warehouse
+    networks:
+      - dbt
 
 networks:
   dbt:
     driver: bridge
 
 volumes:
-  postgres1:
-  postgres2:
-  postgres3:
-  postgres4:
-  warehouse:
+  tap_postgres1:
+  tap_postgres2:
+  tap_postgres3:
+  tap_postgres4:
+  target_postgres_warehouse:

@@ -1,0 +1,24 @@
+---
+
+# ------------------------------------------------------------------------------
+# General Properties
+# ------------------------------------------------------------------------------
+id: "postgres_dwh"                     # Unique identifier of the target
+name: "Postgres Data Warehouse"        # Name of the target
+type: "target-postgres"                # !! THIS SHOULD NOT CHANGE !!
+
+
+# ------------------------------------------------------------------------------
+# Target - Data Warehouse connection details
+# ------------------------------------------------------------------------------
+db_conn:
+  host: {{ env_var['TARGET_POSTGRES_HOST'] }}           # Postgres host
+  port: {{ env_var['TARGET_POSTGRES_PORT'] }}           # Postgres port
+  user: "{{ env_var['TARGET_POSTGRES_USER'] }}"         # Postgres user
+  password: "{{ env_var['TARGET_POSTGRES_PASSWORD'] }}" # Plain string or vault encrypted
+  dbname: "{{ env_var['TARGET_POSTGRES_DB'] }}"         # Postgres database name
+
+  #ssl: "true"                             # Optional: Using SSL via postgres sslmode 'require' option.
+                                           #           If the server does not accept SSL connections or the client
+                                           #           certificate is not recognized the connection will fail
+
