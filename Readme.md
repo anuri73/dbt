@@ -10,7 +10,7 @@ Demo usage of singer.io + pipelinewise libraries for data transfer
 
 ```make install```
 
-4. Generated `singer.io` configuration which will be located under `pipelinewise/.pipelinewise` directory
+4. Generate `singer.io` configuration which will be located under `pipelinewise/.pipelinewise` directory
 
 ```make pipelinewise-regenerate-config```
 
