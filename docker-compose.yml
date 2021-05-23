@@ -153,6 +153,16 @@ services:
     networks:
       - dbt
 
+  clickhouse:
+    image: yandex/clickhouse-server
+    container_name: clickhouse
+    ports:
+      - "${CLICKHOUSE_PORT_ON_HOST}:${CLICKHOUSE_PORT:-5432}"
+    networks:
+      - dbt
+    volumes:
+      - clickhouse:/data/postgres
+
 networks:
   dbt:
     driver: bridge
@@ -163,3 +173,4 @@ volumes:
   tap_postgres3:
   tap_postgres4:
   target_postgres_warehouse:
+  clickhouse:
