@@ -1,4 +1,4 @@
-version: '3'
+version: '3.4'
 
 x-postgres:
   &postgres-common
@@ -47,7 +47,7 @@ services:
     depends_on:
       - tap_postgres1
 
-  tap_postgre2:
+  tap_postgres2:
     <<: *postgres-common
     container_name: tap_postgres2
     volumes:

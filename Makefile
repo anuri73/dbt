@@ -1,7 +1,7 @@
 -include .env
 
-DOCKER         ?= docker
-DC ?= $(DOCKER) compose
+DOCKER ?= docker
+DC     ?= docker-compose
 
 all: up
 .PHONY: all
