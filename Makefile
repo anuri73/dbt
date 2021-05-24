@@ -70,3 +70,10 @@ pipelinewise-run-tap4:
 pipelinewise-test:
 	$(pipelinewise-bash) -c "${PIPELINEWISE_HOME}/sh/tests.sh"
 .PHONY: pipelinewise-run-tap4
+
+dbt-exec ?= $(DC) exec dbt
+dbt-bash ?= $(dbt-exec) bash
+
+dbt-ssh:
+	$(dbt-bash)
+.PHONY: dbt-ssh

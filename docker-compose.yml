@@ -130,9 +130,6 @@ services:
     container_name: pipelinewise
     env_file:
       - .env
-    environment:
-      PIPELINEWISE_HOME: ${PIPELINEWISE_HOME}
-      PIPELINEWISE_SRC: ${PIPELINEWISE_SRC}
 
     volumes:
       # mount pipelinewise source
@@ -161,7 +158,24 @@ services:
     networks:
       - dbt
     volumes:
-      - clickhouse:/data/postgres
+      - clickhouse:/data/clickhouse
+
+  dbt:
+    build:
+      context: dbt
+      dockerfile: Dockerfile
+    container_name: dbt
+    env_file:
+      - .env
+    networks:
+      - dbt
+    volumes:
+      # mount pipelinewise source
+      - ./dbt/src:/opt/dbt/src
+      - ./dbt/dev:/opt/dbt/dev
+      - ./dbt/dev/config/profiles.yml:/root/.dbt/profiles.yml
+      # don't create container specific .virtualenvs files on host
+      - /opt/dbt/dev/.virtualenvs/
 
 networks:
   dbt:
