@@ -133,9 +133,9 @@ services:
 
     volumes:
       # mount pipelinewise source
-      - ./pipelinewise/src:/opt/pipelinewise/src
+      - ./pipelinewise/src:${PIPELINEWISE_SRC}
       # mount pipelinewise dev
-      - ./pipelinewise/dev:/opt/pipelinewise/dev
+      - ./pipelinewise/dev:${PIPELINEWISE_HOME}
       # mount pipelinewise pipe configuration directory to host for ease of troubleshooting
       - ./pipelinewise/.pipelinewise:/root/.pipelinewise
       # don't create container specific .virtualenvs files on host
@@ -171,8 +171,9 @@ services:
       - dbt
     volumes:
       # mount pipelinewise source
-      - ./dbt/src:/opt/dbt/src
-      - ./dbt/dev:/opt/dbt/dev
+      - ./dbt/src:${DBT_SRC}
+      - ./dbt/source:${DBT_SOURCE}
+      - ./dbt/dev:${DBT_HOME}
       - ./dbt/dev/config/profiles.yml:/root/.dbt/profiles.yml
       # don't create container specific .virtualenvs files on host
       - /opt/dbt/dev/.virtualenvs/

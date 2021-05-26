@@ -13,7 +13,10 @@ COPY dev /opt/dbt/dev
 
 COPY src /opt/dbt/src
 
+COPY source /opt/dbt/source
+
 ENV DBT_SRC="/opt/dbt/src"
+ENV DBT_SOURCE="/opt/dbt/source"
 ENV DBT_HOME="/opt/dbt/dev"
 
 RUN ["/opt/dbt/src/sh/entrypoint.sh"]

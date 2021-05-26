@@ -77,3 +77,7 @@ dbt-bash ?= $(dbt-exec) bash
 dbt-ssh:
 	$(dbt-bash)
 .PHONY: dbt-ssh
+
+dbt-run:
+	$(dbt-bash) -c "cd ${DBT_CONFIG_DIR} && ${DBT_HOME}/.virtualenvs/dbt/bin/dbt run"
+.PHONY: dbt-ssh

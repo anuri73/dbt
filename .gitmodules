@@ -1,3 +1,6 @@
 [submodule "pipelinewise/src"]
 	path = pipelinewise/src
 	url = git@github.com:transferwise/pipelinewise.git
+[submodule "dbt/source"]
+	path = dbt/source
+	url = git@github.com:fishtown-analytics/dbt.git
